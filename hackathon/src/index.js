@@ -5,11 +5,13 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import SingleInputContainer from './SingleInputContainer';
+import KendoChartTile from './kendoChartTile';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <SingleInputContainer/>
+    {/* <KendoChartTile/> */}
   </React.StrictMode>
 );
 

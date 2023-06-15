@@ -9,21 +9,21 @@ const SingleInputContainer = () => {
     const [maxValue, setMaxValue] = useState(5);
     const [render, setRender] = useState(true);
 
-    const onChange = (e, id) => {
+    const onChange = (e,id) => {
         const { name, value } = e.target
+        // console.log("e-->",name,"---",value);
+        const editedData = mockDataDetails.map((item) =>
+            item.id === id && name ? { ...item, [name]: value } : item
+        )
 
-        // const editData = employeeData.map((item) =>
-        //     item.id === id && name ? { ...item, [name]: value } : item
-        // )
-
-        // setEmployeeData(editData)
+        setMockDataDetails(editedData)
     }
 
     const handleClick = () => {
         mockDataDetails.push({
             id: Math.floor(Math.random() * (9999 - 100 + 1) + 1000),
             columnName: columnName,
-            type: dataType,
+            dataType: dataType,
             minValue: minValue,
             maxValue: maxValue
         })
@@ -51,7 +51,7 @@ const SingleInputContainer = () => {
 
                 <div className="form-outline w-25">
                     <label style={{ color: 'white' }} className="form-label fw-bold" >Give Min</label>
-                    <input type="number" onChange={(e) => setMinValue(e.target.value)} className="form-control" />
+                    <input type="number" onChange={(e) => console.log(typeof(Number(e.target.value)),"---",e)} className="form-control" />
                 </div>
                 <div className="form-outline w-25">
                     <label style={{ color: 'white' }} className="form-label fw-bold" >Give Max</label>
@@ -63,8 +63,9 @@ const SingleInputContainer = () => {
                 <button type="button" disabled={columnName ? false : true} onClick={handleClick} className="btn btn-primary" >Add the column</button>
             </div>
             <br /><br />
-            <div class="card">
-                <div class="table-responsive">
+            {/* <>{console.log(mockDataDetails)}</> */}
+            <div className="card">
+                <div className="table-responsive">
                     <table className="table table-borderless">
                         <thead>
                             <tr>
@@ -75,16 +76,16 @@ const SingleInputContainer = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {mockDataDetails?.map(({ id, columnName, type, minValue, maxValue }) => (
+                            {mockDataDetails?.map(({ id, columnName, dataType, minValue, maxValue }) => (
                                 <tr key={id}>
                                     <td>
                                         <div className="form-outline">
-                                            <input type="text" value={columnName} onChange={(e) => setColumnName(e.target.value)} className="form-control" />
+                                            <input name="columnName" type="text" value={columnName} onChange={(e) => onChange(e,id)} className="form-control" />
                                         </div>
                                     </td>
                                     <td>
                                         <div className="form-outline">
-                                            <select className="form-select mt-0" value={dataType} onChange={(e) => setDataType(e.target.value)}>
+                                            <select name="dataType" className="form-select mt-0" value={dataType} onChange={(e) => onChange(e,id)}>
                                                 <option>String</option>
                                                 <option>Number</option>
                                                 <option>Decimal</option>
@@ -93,12 +94,12 @@ const SingleInputContainer = () => {
                                     </td>
                                     <td>
                                         <div className="form-outline">
-                                            <input type="number" value={minValue} onChange={(e) => setMinValue(e.target.value)} className="form-control" />
+                                            <input name="minValue" type="number" value={minValue} onChange={(e) => onChange(e,id)}className="form-control" />
                                         </div>
                                     </td>
                                     <td>
                                         <div className="form-outline">
-                                            <input type="number" value={maxValue} onChange={(e) => setMinValue(e.target.value)} className="form-control" />
+                                            <input name="maxValue" type="number" value={maxValue} onChange={(e) => onChange(e,id)} className="form-control" />
                                         </div>
                                     </td>
                                 </tr>
