@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-
+import { Form } from 'react-bootstrap';
 
 const SingleInputContainer = () => {
     const [mockDataDetails, setMockDataDetails] = useState([]);
@@ -9,7 +9,7 @@ const SingleInputContainer = () => {
     const [maxValue, setMaxValue] = useState(5);
     const [render, setRender] = useState(true);
 
-    const onChange = (e,id) => {
+    const onChange = (e, id) => {
         const { name, value } = e.target
         // console.log("e-->",name,"---",value);
         const editedData = mockDataDetails.map((item) =>
@@ -33,30 +33,46 @@ const SingleInputContainer = () => {
     useEffect(() => { }, [mockDataDetails, render])
     return (
         <div className="container">
-            <h1 style={{ color: 'white' }} className="title">Mock Data Generator</h1>
+            <h1 className="title">Mock Data Generator</h1>
             <br /><br />
             <div className="form-group row">
                 <div className="form-outline w-25">
-                    <label style={{ color: 'white' }} className="form-label fw-bold"  >Column Name</label>
+                    <label className="form-label fw-bold"  >Column Name</label>
                     <input type="text" onChange={(e) => setColumnName(e.target.value)} className="form-control" />
                 </div>
                 <div className="form-outline w-25">
-                    <label style={{ color: 'white' }} className="form-label fw-bold" >Select Data Type</label>
+                    <label className="form-label fw-bold" >Select Data Type</label>
                     <select className="form-select mt-0" onChange={(e) => setDataType(e.target.value)}>
                         <option>String</option>
                         <option>Number</option>
                         <option>Decimal</option>
+                        <option>Date</option>
                     </select>
                 </div>
-
-                <div className="form-outline w-25">
-                    <label style={{ color: 'white' }} className="form-label fw-bold" >Give Min</label>
-                    <input type="number" onChange={(e) => console.log(typeof(Number(e.target.value)),"---",e)} className="form-control" />
-                </div>
-                <div className="form-outline w-25">
-                    <label style={{ color: 'white' }} className="form-label fw-bold" >Give Max</label>
-                    <input type="number" onChange={(e) => setMaxValue(e.target.value)} className="form-control" />
-                </div>
+                {dataType !== 'Date' ?
+                    <>
+                        <div className="form-outline w-25">
+                            <label className="form-label fw-bold" >Give Min Range</label>
+                            <input type="number" onChange={(e) => setMinValue(e.target.value)} className="form-control" />
+                        </div>
+                        <div className="form-outline w-25">
+                            <label className="form-label fw-bold" >Give Max Range</label>
+                            <input type="number" onChange={(e) => setMaxValue(e.target.value)} className="form-control" />
+                        </div>
+                    </> :
+                    <> <div className="form-outline w-25">
+                        <Form.Group controlId="dob">
+                            <label className="form-label fw-bold" >Give Min Range</label>
+                            <Form.Control type="date" name="dob" placeholder="Date" onChange={(e) => setMinValue(e.target.value)} />
+                        </Form.Group>
+                    </div>
+                        <div className="form-outline w-25">
+                            <Form.Group controlId="dob">
+                                <label className="form-label fw-bold" >Give Max Range</label>
+                                <Form.Control type="date" onChange={(e) => setMaxValue(e.target.value)} name="dob" placeholder="Date" />
+                            </Form.Group>
+                        </div>
+                    </>}
             </div>
             <br /><br />
             <div className="form-outline w-25">
@@ -64,49 +80,70 @@ const SingleInputContainer = () => {
             </div>
             <br /><br />
             {/* <>{console.log(mockDataDetails)}</> */}
-            <div className="card">
-                <div className="table-responsive">
-                    <table className="table table-borderless">
-                        <thead>
-                            <tr>
-                                <th>Column Name</th>
-                                <th>Data Type</th>
-                                <th>Min Value</th>
-                                <th>Max Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {mockDataDetails?.map(({ id, columnName, dataType, minValue, maxValue }) => (
-                                <tr key={id}>
-                                    <td>
-                                        <div className="form-outline">
-                                            <input name="columnName" type="text" value={columnName} onChange={(e) => onChange(e,id)} className="form-control" />
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="form-outline">
-                                            <select name="dataType" className="form-select mt-0" value={dataType} onChange={(e) => onChange(e,id)}>
-                                                <option>String</option>
-                                                <option>Number</option>
-                                                <option>Decimal</option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="form-outline">
-                                            <input name="minValue" type="number" value={minValue} onChange={(e) => onChange(e,id)}className="form-control" />
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="form-outline">
-                                            <input name="maxValue" type="number" value={maxValue} onChange={(e) => onChange(e,id)} className="form-control" />
-                                        </div>
-                                    </td>
+            {
+                mockDataDetails.length &&
+                <div className="card">
+                    <div className="table-responsive">
+                        <table className="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th>Column Name</th>
+                                    <th>Data Type</th>
+                                    <th>Min Range</th>
+                                    <th>Max Range</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div></div>
+                            </thead>
+                            <tbody>
+                                {mockDataDetails?.map(({ id, columnName, dataType, minValue, maxValue }) => (
+                                    <tr key={id}>
+                                        <td>
+                                            <div className="form-outline">
+                                                <input name="columnName" type="text" value={columnName} onChange={(e) => onChange(e, id)} className="form-control" />
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="form-outline">
+                                                <select name="dataType" className="form-select mt-0" value={dataType} onChange={(e) => onChange(e, id)}>
+                                                    <option>String</option>
+                                                    <option>Number</option>
+                                                    <option>Decimal</option>
+                                                    <option>Date</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {
+                                                dataType === "Date" ?
+                                                    <div className="form-outline">
+                                                        <Form.Group controlId="dob">
+                                                            <Form.Control name="minValue" value={minValue} type="date" placeholder="Date" onChange={(e) => onChange(e, id)} />
+                                                        </Form.Group>
+                                                    </div> :
+                                                    <div className="form-outline">
+                                                        <input name="minValue" type="number" value={minValue} onChange={(e) => onChange(e, id)} className="form-control" />
+                                                    </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            {
+                                                dataType === "Date" ?
+                                                    <div className="form-outline">
+                                                        <Form.Group controlId="dob">
+                                                            <Form.Control name="maxValue" value={maxValue} type="date" placeholder="Date" onChange={(e) => onChange(e, id)} />
+                                                        </Form.Group>
+                                                    </div> :
+                                                    <div className="form-outline">
+                                                        <input name="maxValue" type="number" value={maxValue} onChange={(e) => onChange(e, id)} className="form-control" />
+                                                    </div>
+                                            }
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
         </div>
     )
 }
