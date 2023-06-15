@@ -1,5 +1,6 @@
+import axios, { Axios } from "axios";
 import React, { useEffect, useState } from "react"
-import { Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 
 const SingleInputContainer = () => {
     const [mockDataDetails, setMockDataDetails] = useState([]);
@@ -31,6 +32,32 @@ const SingleInputContainer = () => {
         setRender(!render)
     }
     useEffect(() => { }, [mockDataDetails, render])
+    const generateData = () => {
+        // const method = 'POST';
+        // const url = 'https://localhost:7248/GetMockData';
+        // axios
+        //     .request({
+        //         url,
+        //         POST,
+        //         responseType: 'blob', //important
+        //     })
+        const result = axios.post('https://localhost:7248/GetMockData', {
+            body: mockDataDetails,
+            responseType: 'blob'
+        })
+            .then(({ data }) => {
+                const downloadUrl = window.URL.createObjectURL(new Blob([data]));
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.setAttribute('download', 'file.xlsx');
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+    }
     return (
         <div className="container">
             <h1 className="title">Mock Data Generator</h1>
@@ -141,6 +168,7 @@ const SingleInputContainer = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <Button onClick={generateData}>Generate Data</Button>
                     </div>
                 </div>
             }
