@@ -1,6 +1,6 @@
 import axios, { Axios } from "axios";
 import React, { useEffect, useState } from "react"
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Modal } from 'react-bootstrap';
 
 const SingleInputContainer = () => {
     const [mockDataDetails, setMockDataDetails] = useState([]);
@@ -9,7 +9,9 @@ const SingleInputContainer = () => {
     const [minValue, setMinValue] = useState("0");
     const [maxValue, setMaxValue] = useState("5");
     const [render, setRender] = useState(true);
-    const [exists,setExists] = useState(false);
+    const [exists, setExists] = useState(false);
+    const [fileFormat, setFileFormat] = useState('csv');
+    const [dataAmount, setDataAmount] = useState(1000);
     const onChange = (e, id) => {
         const { name, value } = e.target
         // console.log("e-->",name,"---",value);
@@ -36,16 +38,9 @@ const SingleInputContainer = () => {
         setRender(!render)
     }
     useEffect(() => { }, [mockDataDetails, render])
-    const generateData = () => {
-        // const method = 'POST';
-        // const url = 'https://localhost:7248/GetMockData';
-        // axios
-        //     .request({
-        //         url,
-        //         POST,
-        //         responseType: 'blob', //important
-        //     })
-        const result = axios.post('https://localhost:7248/GetMockData', {
+
+    const callAPI = () => {
+        const result = axios.post(`https://localhost:7248/GetMockData/${dataAmount}/${fileFormat}`, {
             body: mockDataDetails,
             responseType: 'blob'
         })
@@ -65,22 +60,37 @@ const SingleInputContainer = () => {
     const onColumnNameChange = (e) => {
         // console.log("e-->",name,"---",value);
         mockDataDetails.map((item) =>
-            item.columnName === e  ? setExists(true) : setExists(false)
+            item.columnName === e ? setExists(true) : setExists(false)
         )
-console.log("e-->",exists);
+        console.log("e-->", exists);
         setColumnName(e);
     }
+    const handleRemove=(id)=>{
+        if(window.confirm('Are you sure to delete row?'))
+       {
+        let index = mockDataDetails.findIndex(
+            (record) => record.id === id
+        );
+        mockDataDetails.splice(index, 1);
+        setMockDataDetails(mockDataDetails);
+        setRender(!render)
+       }
+       else setRender(!render)
+    }
     return (
-        <div className="container">
-            <h1 className="title">Mock Data Generator</h1>
-            <br /><br />
+        <>
+        <div className="first-page">
+            <h1 style={{ fontWeight: 'bold', letterSpacing: '2px' }} className="title">SimuGenius</h1>
+            <p className="tag-line"style={{marginLeft:'60px'}}>Data Engine Simulator</p>
+
+            <br />
             <div className="form-group row">
                 <div className="form-outline w-25">
-                    <label className="form-label  fw-bold"  >Column Name</label>
-                    <input type="text" required value={columnName} onChange={(e) => onColumnNameChange(e.target.value)} className="form-control" />
+                    <label className="form-label  fw-bold"  >Attribute Name</label>
+                    <input type="text" placeholder="Enter Attribute Name" required value={columnName} onChange={(e) => onColumnNameChange(e.target.value)} className="form-control" />
                 </div>
                 <div className="form-outline w-25">
-                    <label className="form-label fw-bold" >Select Data Type</label>
+                    <label className="form-label fw-bold" >Data Type</label>
                     <select className="form-select mt-0" value={dataType} onChange={(e) => setDataType(e.target.value)}>
                         <option>String</option>
                         <option>Number</option>
@@ -91,11 +101,11 @@ console.log("e-->",exists);
                 {dataType !== 'Date' ?
                     <>
                         <div className="form-outline w-25">
-                            <label className="form-label fw-bold" >Give Min Range</label>
+                            <label className="form-label fw-bold" >Min Range</label>
                             <input type="number" value={Number(minValue)} onChange={(e) => setMinValue(e.target.value)} className="form-control" />
                         </div>
                         <div className="form-outline w-25">
-                            <label className="form-label fw-bold" >Give Max Range</label>
+                            <label className="form-label fw-bold" >Max Range</label>
                             <input type="number" value={Number(maxValue)} onChange={(e) => setMaxValue(e.target.value)} className="form-control" />
                         </div>
                     </> :
@@ -113,24 +123,25 @@ console.log("e-->",exists);
                         </div>
                     </>}
             </div>
-            <br /><br />
+            <br />
             <div className="form-outline w-25">
-            <a href="#" data-toggle="tooltip" data-placement="bottom" title={columnName ? exists?"Column name already exists":'' : "Please add atleast 1 column"}> <button type="button" disabled={columnName ?exists?true: false : true} onClick={handleClick} className="btn btn-primary" >Add the column</button></a>
-               
+                <a href="#" data-toggle="tooltip" data-placement="bottom" title={columnName ? exists ? "Column name already exists" : '' : "Please add atleast 1 column"}> <button type="button"  disabled={columnName ? exists ? true : false : true} onClick={handleClick} className="btn btn-primary add-button" >Add Attribute</button></a>
+
             </div>
             <br /><br />
             {/* <>{console.log(mockDataDetails)}</> */}
             {
-                mockDataDetails.length!==0 &&
-                <div className="card">
+                mockDataDetails.length !== 0 &&
+                <div className="card" style={{height:'40vh'}}>
                     <div className="table-responsive">
                         <table className="table table-borderless">
                             <thead>
                                 <tr>
-                                    <th>Column Name</th>
+                                    <th>Attribute Name</th>
                                     <th>Data Type</th>
                                     <th>Min Range</th>
                                     <th>Max Range</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -177,17 +188,39 @@ console.log("e-->",exists);
                                                     </div>
                                             }
                                         </td>
+                                        <td>
+                                            <Button onClick={()=>handleRemove(id)}>Delete</Button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                       
+
                     </div>
                 </div>
             }
-            { mockDataDetails.length!==0 && <Button onClick={generateData}>Generate Data</Button>}
-             
+            <br/>
+            
+
         </div>
+        {mockDataDetails.length !== 0 && <div className="form-group row second-container" style={{ display: 'flex' }}>
+
+        <div className="form-outline w-25">
+            <select className="form-select mt-0" value={fileFormat} onChange={(e) => setFileFormat(e.target.value)}>
+                <option>csv</option>
+                <option>tsv</option>
+                <option>json</option>
+                <option>xml</option>
+            </select>
+        </div>
+
+        <div className="form-outline w-25">
+            <input type="number" placeholder="Data Count" required value={dataAmount} onChange={(e) => setDataAmount(e.target.value)} className="form-control" />
+        </div>
+        <div className="form-outline w-25">
+            <Button onClick={callAPI}>Generate Data</Button>
+        </div>
+    </div>}</>
     )
 }
 
